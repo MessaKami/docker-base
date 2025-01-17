@@ -354,6 +354,12 @@ docker rm api_backend nginx_frontend
 docker network rm mon_reseau
 ```
 
+### Points Clés
+- Les volumes persistent après la suppression des conteneurs
+- Les bind mounts permettent le développement en temps réel
+- Toujours utiliser des variables d'environnement pour les secrets
+- Vérifier les montages avec `docker inspect` ou `exec`
+
 ## 🔍 Surveillance et Logs
 
 | Commande | Utilité | Quand l'utiliser |
@@ -464,3 +470,96 @@ docker volume rm pgdata                                # Supprime le volume
 - Les bind mounts permettent le développement en temps réel
 - Toujours utiliser des variables d'environnement pour les secrets
 - Vérifier les montages avec `docker inspect` ou `exec`
+
+## 🔄 Docker Compose
+
+### Introduction
+
+| Aspect | Description | Bénéfice |
+|--------|-------------|----------|
+| Simplification | Gestion multi-conteneurs | Une seule commande pour tout |
+| Configuration as Code | Fichier YAML | Versionnable et maintenable |
+| Répétabilité | Environnements identiques | Dev/Test/Prod cohérents |
+| Maintenance | Mises à jour facilitées | Gestion simplifiée |
+
+### Commandes de Base
+
+| Commande | Description | Utilisation |
+|----------|-------------|-------------|
+| `docker-compose up` | Démarre les services | Lancement de l'application |
+| `docker-compose down` | Arrête les services | Nettoyage complet |
+| `docker-compose ps` | Liste les services | État des conteneurs |
+| `docker-compose logs` | Affiche les logs | Débogage |
+
+### Exemple Pratique : API avec PostgreSQL et Nginx
+
+```yaml
+version: '3'
+services:
+  api:
+    image: mon_api_image
+    environment:
+      DB_URL: url_to_db
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: exemplepassword
+      POSTGRES_USER: db_username
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api
+
+volumes:
+  db_data:
+```
+
+### Structure du Fichier
+
+| Section | Description | Exemple |
+|---------|-------------|---------|
+| `services` | Définition des conteneurs | API, DB, Nginx |
+| `volumes` | Stockage persistant | Données PostgreSQL |
+| `depends_on` | Ordre de démarrage | Nginx dépend de l'API |
+| `environment` | Variables d'environnement | Credentials DB |
+
+### Bonnes Pratiques
+
+| Pratique | Description | Avantage |
+|----------|-------------|----------|
+| Variables d'environnement | Utiliser `.env` | Sécurité et flexibilité |
+| Volumes nommés | Persistance des données | Maintenance facilitée |
+| Dépendances | Gérer l'ordre de démarrage | Stabilité application |
+| Réseaux | Isolation des services | Sécurité renforcée |
+
+### Points Clés
+- Docker Compose simplifie la gestion d'applications multi-conteneurs
+- Configuration centralisée dans un fichier YAML
+- Idéal pour le développement et le test
+- Assure la cohérence entre les environnements
+
+### Commandes Avancées
+
+```bash
+# Reconstruction des services
+docker-compose up --build
+
+# Démarrage en arrière-plan
+docker-compose up -d
+
+# Voir les logs en continu
+docker-compose logs -f
+
+# Arrêt et suppression des volumes
+docker-compose down -v
+```
