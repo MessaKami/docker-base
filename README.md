@@ -5,6 +5,7 @@
 - [Gestion des Conteneurs](#gestion-des-conteneurs)
 - [Images Docker](#images-docker)
 - [Volumes Docker](#volumes-docker)
+- [Bind Mounts](#bind-mounts)
 - [Surveillance et Logs](#surveillance-et-logs)
 - [Registres et Tags](#registres-et-tags)
 - [Bonnes Pratiques](#bonnes-pratiques)
@@ -94,6 +95,52 @@ du -sh $(docker volume inspect -f '{{.Mountpoint}}' mon_volume)
 | Sécurité | Chiffrez les données sensibles |
 | Maintenance | Nettoyez régulièrement les volumes orphelins |
 | Backup | Sauvegardez régulièrement les volumes critiques |
+
+## 🔗 Bind Mounts
+
+### Comparaison avec les Volumes
+
+| Type | Avantages | Inconvénients |
+|------|-----------|---------------|
+| Bind Mounts | Développement rapide, accès direct | Moins portable, chemins absolus requis |
+| Volumes | Gérés par Docker, plus sécurisés | Moins flexible pour le développement |
+
+### Syntaxes de Montage
+
+| Méthode | Commande | Usage |
+|---------|----------|-------|
+| `-v` | `docker run -v /host/path:/container/path` | Syntaxe courte |
+| `--mount` | `docker run --mount type=bind,source=/host,target=/container` | Syntaxe explicite |
+
+### Exemples de Développement
+
+```bash
+# Montage du code source pour le développement
+docker run -d -v $(pwd):/app mon_image_web
+
+# Montage en lecture seule
+docker run -v /host/config:/etc/app:ro mon_image
+
+# Montage avec --mount (plus explicite)
+docker run --mount type=bind,source="$(pwd)",target=/app mon_image
+```
+
+### Cas d'Utilisation
+
+| Scénario | Commande | Avantage |
+|----------|----------|----------|
+| Développement Web | `-v $(pwd):/app` | Rechargement à chaud |
+| Configuration | `-v /host/config:/etc/app:ro` | Fichiers en lecture seule |
+| Logs | `-v /host/logs:/var/log` | Accès direct aux logs |
+
+### Bonnes Pratiques
+
+| Aspect | Recommandation | Raison |
+|--------|----------------|---------|
+| Sécurité | Utilisez `:ro` pour la lecture seule | Prévient les modifications accidentelles |
+| Chemins | Préférez les chemins absolus | Évite les ambiguïtés |
+| Production | Privilégiez les volumes | Meilleure portabilité |
+| Permissions | Vérifiez les droits utilisateur | Évite les problèmes d'accès |
 
 ## 🔍 Surveillance et Logs
 
