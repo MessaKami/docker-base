@@ -8,9 +8,11 @@
 - [Bind Mounts](#bind-mounts)
 - [Tmpfs Mounts](#tmpfs-mounts)
 - [Sécurité du Stockage](#sécurité-du-stockage)
+- [Réseaux Docker](#réseaux-docker)
 - [Surveillance et Logs](#surveillance-et-logs)
 - [Registres et Tags](#registres-et-tags)
 - [Bonnes Pratiques](#bonnes-pratiques)
+- [TP Corrigé : Gestion des Volumes et Bind Mounts](#tp-corrigé--gestion-des-volumes-et-bind-mounts)
 
 ## 🛠 Commandes de Base
 
@@ -250,6 +252,76 @@ docker run -d \
   --mount type=bind,source=/etc/app/config,target=/config,readonly \
   --tmpfs /app/temp:rw,size=50m,noexec \
   mon_app:latest
+```
+
+## 🌐 Réseaux Docker
+
+### Création et Gestion des Réseaux
+
+| Commande | Description | Utilisation |
+|----------|-------------|-------------|
+| `docker network create --driver bridge mon_reseau` | Crée un réseau bridge | Communication inter-conteneurs |
+| `docker network ls` | Liste les réseaux | Vue d'ensemble |
+| `docker network rm mon_reseau` | Supprime un réseau | Nettoyage |
+| `docker network inspect mon_reseau` | Détails d'un réseau | Débogage |
+
+### Déploiement avec Réseaux
+
+```bash
+# 1. Création du réseau
+docker network create --driver bridge mon_reseau
+
+# 2. Déploiement de l'API Backend
+docker run -d --name api_backend \
+  --network mon_reseau \
+  mon_image_api
+
+# 3. Déploiement de Nginx Frontend
+docker run -d --name nginx_frontend \
+  --network mon_reseau \
+  -p 80:80 \
+  nginx
+```
+
+### Comprendre le Mappage des Ports
+
+| Option | Analogie | Explication |
+|--------|----------|-------------|
+| `-p 80:80` | Adresse postale | Port hôte : Port conteneur |
+| `--network` | Quartier | Réseau partagé entre conteneurs |
+| `--name` | Nom du bâtiment | Identifiant du conteneur |
+
+### Avantages des Réseaux Docker
+
+| Aspect | Bénéfice | Exemple |
+|--------|----------|---------|
+| Isolation | Sécurité accrue | Conteneurs isolés par réseau |
+| Résolution de noms | Configuration simplifiée | Utilisation des noms de conteneurs |
+| Flexibilité | Architecture modulaire | Microservices communicants |
+
+### Bonnes Pratiques
+
+| Pratique | Description | Raison |
+|----------|-------------|---------|
+| Réseaux dédiés | Un réseau par groupe de services | Isolation logique |
+| Publication de ports | Limiter aux services nécessaires | Sécurité |
+| Nommage explicite | Noms descriptifs pour conteneurs | Maintenance facilitée |
+
+### Points Clés
+- Les réseaux bridge sont idéaux pour la communication locale
+- Les conteneurs peuvent communiquer par nom dans le même réseau
+- La publication de ports (-p) n'est nécessaire que pour l'accès externe
+- Toujours nettoyer les réseaux inutilisés
+
+### Nettoyage
+
+```bash
+# Arrêt et suppression des conteneurs
+docker stop api_backend nginx_frontend
+docker rm api_backend nginx_frontend
+
+# Suppression du réseau
+docker network rm mon_reseau
 ```
 
 ## 🔍 Surveillance et Logs
