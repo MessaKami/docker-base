@@ -563,3 +563,78 @@ docker-compose logs -f
 # Arrêt et suppression des volumes
 docker-compose down -v
 ```
+
+### Gestion des Services
+
+#### Démarrage des Services
+
+```bash
+# Démarrage standard
+docker-compose up
+
+# Démarrage en arrière-plan
+docker-compose up -d
+
+# Démarrage avec reconstruction
+docker-compose up --build
+```
+
+#### Arrêt des Services
+
+| Commande | Description | Utilisation |
+|----------|-------------|-------------|
+| `docker-compose stop` | Arrête sans supprimer | Redémarrage rapide possible |
+| `docker-compose down` | Arrête et nettoie tout | Nettoyage complet |
+
+#### Redémarrage des Services
+
+```bash
+# Redémarrer tous les services
+docker-compose restart
+
+# Redémarrer un service spécifique
+docker-compose restart [service_name]
+```
+
+#### Surveillance des Logs
+
+| Commande | Description | Option |
+|----------|-------------|---------|
+| `docker-compose logs` | Voir tous les logs | Vue globale |
+| `docker-compose logs -f` | Suivre en temps réel | Débogage |
+| `docker-compose logs [service]` | Logs d'un service | Focus service |
+
+### Exemples Pratiques de Gestion
+
+```bash
+# 1. Démarrage complet en arrière-plan
+docker-compose up -d
+
+# 2. Vérification des logs en temps réel
+docker-compose logs -f
+
+# 3. Arrêt temporaire pour maintenance
+docker-compose stop
+
+# 4. Redémarrage après maintenance
+docker-compose start
+
+# 5. Nettoyage complet
+docker-compose down
+```
+
+### Points Clés de Gestion
+- `up` lance tous les services définis dans `docker-compose.yaml`
+- `-d` permet l'exécution en arrière-plan
+- `stop` préserve les conteneurs pour un redémarrage rapide
+- `down` nettoie complètement l'environnement
+- Les logs sont essentiels pour le débogage
+
+### Résumé des Commandes Essentielles
+
+| Phase | Commande | Utilisation |
+|-------|----------|-------------|
+| Démarrage | `docker-compose up -d` | Lancement production |
+| Surveillance | `docker-compose logs -f` | Débogage |
+| Maintenance | `docker-compose restart` | Mise à jour |
+| Nettoyage | `docker-compose down` | Fin de projet |
