@@ -4,6 +4,7 @@
 - [Commandes de Base](#commandes-de-base)
 - [Gestion des Conteneurs](#gestion-des-conteneurs)
 - [Images Docker](#images-docker)
+- [Volumes Docker](#volumes-docker)
 - [Surveillance et Logs](#surveillance-et-logs)
 - [Registres et Tags](#registres-et-tags)
 - [Bonnes Pratiques](#bonnes-pratiques)
@@ -49,6 +50,50 @@ COPY site-web/ .
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
+
+## 📦 Volumes Docker
+
+### Commandes de Base pour les Volumes
+
+| Commande | Description | Utilisation |
+|----------|-------------|-------------|
+| `docker volume create mon_volume` | Crée un nouveau volume | Stockage persistant |
+| `docker volume ls` | Liste tous les volumes | Vue d'ensemble |
+| `docker volume inspect mon_volume` | Détails d'un volume | Débogage |
+| `docker volume rm mon_volume` | Supprime un volume | Nettoyage |
+| `docker volume prune` | Supprime les volumes non utilisés | Maintenance |
+
+### Montage des Volumes
+
+| Commande | Description | Exemple |
+|----------|-------------|---------|
+| `docker run -v mon_volume:/data mon_image` | Monte un volume nommé | Application web |
+| `docker run -v $(pwd):/app mon_image` | Monte un dossier local | Développement |
+| `docker run --env-file .env -v pgdata:/var/lib/postgresql/data postgres` | Monte un volume pour PostgreSQL | Base de données |
+
+### Exemples Pratiques
+
+```bash
+# PostgreSQL avec volume persistant
+docker volume create pgdata
+docker run -d \
+  --env-file pg_credentials.env \
+  -v pgdata:/var/lib/postgresql/data \
+  postgres
+
+# Vérifier la taille d'un volume
+docker volume inspect mon_volume
+du -sh $(docker volume inspect -f '{{.Mountpoint}}' mon_volume)
+```
+
+### Bonnes Pratiques pour les Volumes
+
+| Aspect | Recommandation |
+|--------|----------------|
+| Nommage | Utilisez des noms explicites pour les volumes |
+| Sécurité | Chiffrez les données sensibles |
+| Maintenance | Nettoyez régulièrement les volumes orphelins |
+| Backup | Sauvegardez régulièrement les volumes critiques |
 
 ## 🔍 Surveillance et Logs
 
