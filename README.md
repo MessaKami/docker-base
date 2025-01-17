@@ -303,3 +303,62 @@ docker run -d -p 8080:80 --name mon-site mon-app:latest
 docker logs mon-site
 curl http://localhost:8080
 ```
+
+## 📝 TP Corrigé : Gestion des Volumes et Bind Mounts
+
+### Partie 1 : Volumes Docker
+
+```bash
+# 1. Création et configuration PostgreSQL avec volume
+docker volume create pgdata                              # Crée un volume persistant
+docker run -d --name my-database \
+  --env POSTGRES_USER=admin \
+  --env POSTGRES_PASSWORD=adminpassword \
+  -v pgdata:/var/lib/postgresql/data \
+  postgres                                              # Lance PostgreSQL avec volume
+
+# Vérification
+docker volume inspect pgdata                            # Inspecte le volume
+docker ps                                              # Vérifie le conteneur
+```
+
+| Commande | Explication |
+|----------|-------------|
+| `volume create` | Crée un espace de stockage persistant |
+| `-v pgdata:/var/lib/postgresql/data` | Monte le volume dans le conteneur |
+| `--env` | Configure les variables d'environnement |
+
+### Partie 2 : Bind Mounts
+
+```bash
+# 1. Configuration Nginx avec bind mount
+mkdir ~/my-datas                                        # Crée le dossier sur l'hôte
+docker run -d --name my-nginx \
+  -v ~/my-datas:/app/data \
+  nginx                                                # Monte le dossier dans Nginx
+
+# Test et vérification
+echo "Ceci est un fichier test" > ~/my-datas/test.md   # Crée un fichier test
+docker exec my-nginx ls /app/data                      # Vérifie dans le conteneur
+```
+
+| Option | But | Exemple |
+|--------|-----|---------|
+| `-v` | Monte un dossier local | `-v ~/my-datas:/app/data` |
+| `--name` | Nomme le conteneur | `--name my-nginx` |
+| `exec` | Exécute une commande | `docker exec my-nginx ls` |
+
+### Nettoyage
+
+```bash
+# Arrêt et suppression
+docker stop my-database my-nginx                        # Arrête les conteneurs
+docker rm my-database my-nginx                         # Supprime les conteneurs
+docker volume rm pgdata                                # Supprime le volume
+```
+
+### Points Clés
+- Les volumes persistent après la suppression des conteneurs
+- Les bind mounts permettent le développement en temps réel
+- Toujours utiliser des variables d'environnement pour les secrets
+- Vérifier les montages avec `docker inspect` ou `exec`
