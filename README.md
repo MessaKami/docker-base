@@ -7,6 +7,7 @@
 - [Volumes Docker](#volumes-docker)
 - [Bind Mounts](#bind-mounts)
 - [Tmpfs Mounts](#tmpfs-mounts)
+- [Sécurité du Stockage](#sécurité-du-stockage)
 - [Surveillance et Logs](#surveillance-et-logs)
 - [Registres et Tags](#registres-et-tags)
 - [Bonnes Pratiques](#bonnes-pratiques)
@@ -190,6 +191,66 @@ docker run --mount type=tmpfs,target=/app/sessions,tmpfs-size=50m mon_image
 | Sécurité | Mode approprié | Contrôle des accès |
 | Performance | Monitoring régulier | Optimisation usage |
 | Isolation | Chemins dédiés | Évite les conflits |
+
+## 🔒 Sécurité du Stockage
+
+### Isolation des Données
+
+| Commande | Objectif | Bénéfice |
+|----------|----------|----------|
+| `docker volume create data_app1` | Volume dédié par application | Isolation complète |
+| `chmod 700 /data/secure` | Permissions restrictives | Contrôle d'accès |
+| `docker run --mount type=volume,src=data_app1,dst=/data` | Montage isolé | Séparation des données |
+
+### Chiffrement et Sécurité
+
+```bash
+# Création d'un volume sécurisé avec plugin SSHFS
+docker volume create -d vieux/sshfs \
+  -o sshcmd=user@host:/path secure_volume
+
+# Montage avec permissions restreintes
+docker run -v /secure/config:/app/config:ro,Z app_image
+
+# Tmpfs sécurisé avec taille limitée
+docker run --tmpfs /app/temp:rw,size=100m,noexec,nosuid app_image
+```
+
+### Bonnes Pratiques de Sécurité
+
+| Aspect | Recommandation | Exemple |
+|--------|----------------|---------|
+| Volumes | Un volume par service | `volume create app_data` |
+| Bind Mounts | Chemins spécifiques uniquement | `-v /app/config:/config:ro` |
+| Tmpfs | Limiter taille et droits | `--tmpfs /tmp:size=50m,noexec` |
+| Permissions | Principe du moindre privilège | `chmod 600 /app/secrets` |
+
+### Contrôles de Sécurité
+
+| Type | Commande/Action | But |
+|------|----------------|-----|
+| Audit | `docker volume inspect` | Vérifier la configuration |
+| Isolation | Volumes nommés | Éviter les conflits |
+| Chiffrement | dm-crypt/LUKS | Protection des données |
+| Monitoring | Logs système | Détection d'anomalies |
+
+### Exemples de Configuration Sécurisée
+
+```bash
+# Volume chiffré pour base de données
+docker run -d \
+  --name db_secure \
+  --mount type=volume,source=db_encrypted,target=/var/lib/mysql \
+  -e MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db_root_pw \
+  mysql:8.0
+
+# Configuration en lecture seule
+docker run -d \
+  --name app_secure \
+  --mount type=bind,source=/etc/app/config,target=/config,readonly \
+  --tmpfs /app/temp:rw,size=50m,noexec \
+  mon_app:latest
+```
 
 ## 🔍 Surveillance et Logs
 
