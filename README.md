@@ -6,6 +6,7 @@
 - [Images Docker](#images-docker)
 - [Volumes Docker](#volumes-docker)
 - [Bind Mounts](#bind-mounts)
+- [Tmpfs Mounts](#tmpfs-mounts)
 - [Surveillance et Logs](#surveillance-et-logs)
 - [Registres et Tags](#registres-et-tags)
 - [Bonnes Pratiques](#bonnes-pratiques)
@@ -141,6 +142,54 @@ docker run --mount type=bind,source="$(pwd)",target=/app mon_image
 | Chemins | Préférez les chemins absolus | Évite les ambiguïtés |
 | Production | Privilégiez les volumes | Meilleure portabilité |
 | Permissions | Vérifiez les droits utilisateur | Évite les problèmes d'accès |
+
+## 💾 Tmpfs Mounts
+
+### Caractéristiques
+
+| Aspect | Description | Avantage |
+|--------|-------------|----------|
+| Performance | Stockage en RAM | Accès ultra-rapide |
+| Sécurité | Données effacées à l'arrêt | Protection des données sensibles |
+| Durabilité | Réduit l'usure du disque | Prolonge la vie des SSD |
+
+### Syntaxe de Base
+
+| Option | Commande | Description |
+|--------|----------|-------------|
+| Simple | `--tmpfs /chemin` | Montage basique en RAM |
+| Avancée | `--tmpfs /chemin:rw,size=100m` | Avec options spécifiques |
+| Mount | `--mount type=tmpfs,target=/chemin` | Syntaxe explicite |
+
+### Exemples d'Utilisation
+
+```bash
+# Montage simple pour fichiers temporaires
+docker run --tmpfs /app/temp mon_image
+
+# Montage avec taille et permissions
+docker run --tmpfs /app/cache:rw,size=100m,mode=1777 mon_image
+
+# Montage pour sessions web
+docker run --mount type=tmpfs,target=/app/sessions,tmpfs-size=50m mon_image
+```
+
+### Cas d'Usage
+
+| Scénario | Configuration | Bénéfice |
+|----------|--------------|-----------|
+| Sessions Web | `--tmpfs /app/sessions:size=50m` | Sécurité des données |
+| Cache | `--tmpfs /app/cache:size=100m` | Performance accrue |
+| Fichiers Temp | `--tmpfs /tmp:exec` | Isolation système |
+
+### Bonnes Pratiques
+
+| Aspect | Recommandation | Raison |
+|--------|----------------|---------|
+| Mémoire | Limitez la taille | Évite la saturation RAM |
+| Sécurité | Mode approprié | Contrôle des accès |
+| Performance | Monitoring régulier | Optimisation usage |
+| Isolation | Chemins dédiés | Évite les conflits |
 
 ## 🔍 Surveillance et Logs
 
