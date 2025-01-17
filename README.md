@@ -265,6 +265,36 @@ docker run -d \
 | `docker network rm mon_reseau` | Supprime un réseau | Nettoyage |
 | `docker network inspect mon_reseau` | Détails d'un réseau | Débogage |
 
+### Connexion des Conteneurs aux Réseaux
+
+#### Pourquoi Connecter des Conteneurs ?
+
+| Aspect | Description | Bénéfice |
+|--------|-------------|----------|
+| Isolation | Environnements isolés | Sécurité et prévention des conflits |
+| Communication | Échanges contrôlés | Communication sécurisée inter-conteneurs |
+| DNS interne | Résolution de noms | Configuration simplifiée |
+
+#### Commandes de Connexion
+
+```bash
+# Connexion lors de la création
+docker run --name mon_conteneur \
+  --network mon_reseau \
+  -d mon_image
+
+# Connexion d'un conteneur existant
+docker network connect mon_reseau mon_conteneur
+```
+
+#### Bonnes Pratiques de Connexion
+
+| Pratique | Description | Avantage |
+|----------|-------------|----------|
+| Nommage significatif | Noms descriptifs pour les réseaux | Gestion facilitée |
+| Réseaux dédiés | Séparation dev/test/prod | Meilleure isolation |
+| Inspection régulière | Surveillance avec `docker network inspect` | Maintenance proactive |
+
 ### Déploiement avec Réseaux
 
 ```bash
